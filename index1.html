@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>АромаГид — Симфония клеток</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: 
+                linear-gradient(rgba(34, 70, 34, 0.8), rgba(34, 70, 34, 0.9)),
+                url("bg.jpg") center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+	body::before {
+            content: "";
+            position: fixed;
+            top: 20px; 
+            left: 20px; 
+            width: 25%;
+            height: calc(100% - 40px); 
+            background: url("left-plant.jpg") center center no-repeat;
+            background-size: contain;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 1;
+            overflow: hidden; 
+        }
+
+        .video-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            z-index: 10;
+        }
+
+        .video-sidebar video {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #000;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;            
+            max-width: 450px;
+            animation: fadeInScale 0.5s ease forwards;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .message {
+            color: #f1f8e9;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            color: #ffffff;
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 18px 15px;
+            margin: 14px 0;
+            border-radius: 18px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1b5e20;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .button:active { transform: scale(0.97); }
+
+        .button-back { background: rgba(0, 0, 0, 0.3); color: #ffffff; margin-top: 30px; }
+
+        .hidden { display: none; }
+
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .letters-grid .button { margin: 0; padding: 15px 5px; }
+
+        @media (max-width: 1000px) {
+            body { flex-direction: column; align-items: center; }
+            .video-sidebar {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 90%;
+                max-width: 450px;
+                margin-top: 20px;
+            }
+	    body::before {
+                width: 30%; /* Увеличили и для мобильных */
+                opacity: 0.8; /* На мобильных можно оставить легкую прозрачность, чтобы не перекрывала контент */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="main-menu">
+        <div class="message" style="text-align: center;">
+            Добро пожаловать в бот<br><strong>"АромаГид"</strong>
+        </div>
+        <button class="button" onclick="show_illnesses()">🔍 Подобрать масло</button>
+        <button class="button" onclick="renderSystems()">💡 Протоколы "Симфония"</button>
+        <button class="button" style="background-color:#e1f5fe; color:#0288d1;" onclick="show_about_project()">ℹ️ Об эфирных маслах</button>
+    </div>
+
+    <div id="screen-dynamic" class="hidden">
+        <h3 id="dyn-title"></h3>
+        <div id="dyn-content" class="message"></div>
+        <div id="dyn-buttons"></div>
+        <button id="btn-back" class="button button-back">← Назад</button>
+    </div>
+</div>
+
+<div class="video-sidebar">
+    <div style="color: #ffffff; text-align: center; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+        Что такое эфирные масла?
+    </div>
+    <video controls loop playsinline>
+        <source src="right-video.mp4" type="video/mp4">
+    </video>
+</div>
+
+<script src="data.js"></script>
+<script>
+    const screenMain = document.getElementById('main-menu');
+    const screenDyn = document.getElementById('screen-dynamic');
+    const dynTitle = document.getElementById('dyn-title');
+    const dynContent = document.getElementById('dyn-content');
+    const dynButtons = document.getElementById('dyn-buttons');
+    const btnBack = document.getElementById('btn-back');
+
+    function showDyn() {
+        screenMain.classList.add('hidden');
+        screenDyn.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function renderSystems() {
+        showDyn();
+        dynTitle.innerText = "Симфония клеток";
+        dynContent.innerHTML = "Выберите систему организма:";
+        dynButtons.innerHTML = ''; 
+        dynButtons.className = '';
+        Object.keys(protocolsData).forEach(system => {
+            const btn = document.createElement('button');
+            btn.className = 'button';
+            btn.innerText = system;
+            btn.onclick = () => renderProtocolsList(system);
+            dynButtons.appendChild(btn);
+        });
+        btnBack.onclick = () => {
+            screenDyn.classList.add('hidden');
+            screenMain.classList.remove('hidden');
+        };
+    }
+
+    function show_about_project() {
+        showDyn();
+        dynTitle.innerText = "ℹ️ Об эфирных маслах";
+        dynButtons.innerHTML = '';
+        dynButtons.className = '';
+        dynContent.innerHTML = `<img src="photo_2026-04-17_10-47-41.jpg" style="width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+Эфирные масла представляют собой сложные смеси химических соединений растительного происхождения, которые относятся к летучим органическим веществам и легко испаряются, распространяясь в воздухе. Их основа — углеродные соединения, а каждое масло обладает уникальным химическим составом, от которого зависят его свойства и эффекты. Компоненты эфирных масел способны взаимодействовать с клетками организма: одни связываются с рецепторами на поверхности клеток, другие проникают внутрь и могут взаимодействовать с ферментами, белками и даже влиять на клеточные процессы. Благодаря этим механизмам эфирные масла могут вызывать различные биологические эффекты, что становится предметом современных научных исследований.
+<br><br>
+Исторически использование эфирных масел основывалось на традициях и опыте, однако сегодня наука постепенно раскрывает механизмы их действия. Важную роль играет качество масел: их эффективность зависит от чистоты и точного химического состава. Для проверки применяются лабораторные методы, такие как газовая хроматография и масс-спектрометрия, которые позволяют выявлять примеси и подтверждать отсутствие синтетических добавок.
+<br><br>
+Также большое значение имеет происхождение сырья — растения собираются в естественной среде, а сотрудничество с фермерами и устойчивые методы производства помогают поддерживать стабильное качество продукции. Высокая концентрация эфирных масел делает их более эффективными, поэтому для применения требуется небольшое количество. В целом научный подход позволяет лучше понять свойства эфирных масел и способствует их более безопасному и обоснованному использованию.
+`;          
+	btnBack.onclick = () => {
+            screenDyn.classList.add('hidden');
+            screenMain.classList.remove('hidden');
+        };
+    }
+
+    function show_illnesses() {
+        showDyn();
+        dynTitle.innerText = "Подбор масла";
+        dynContent.innerText = "Выберите букву:";
+        dynButtons.innerHTML = '';
+        dynButtons.className = 'letters-grid';
+        const letters = ["А", "Б", "В", "Г", "Д", "Ж", "З", "И", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ш", "Э"];
+        letters.forEach(group => {
+            const btn = document.createElement('button');
+            btn.className = 'button';
+            btn.innerText = group;
+            const hasData = illnessData && illnessData[group];
+            btn.disabled = !hasData;
+            btn.style.opacity = hasData ? "1" : "0.3";
+            btn.onclick = () => show_letter_group(group);
+            dynButtons.appendChild(btn);
+        });
+        btnBack.onclick = () => {
+            screenDyn.classList.add('hidden');
+            screenMain.classList.remove('hidden');
+        };
+    }
+
+    function show_letter_group(group) {
+        showDyn();
+        dynTitle.innerText = "Болезни на " + group;
+        dynButtons.innerHTML = '';
+        dynButtons.className = '';
+        const groupData = illnessData[group];
+        Object.keys(groupData).sort().forEach(name => {
+            const btn = document.createElement('button');
+            btn.className = 'button';
+            btn.innerText = name;
+            btn.onclick = () => show_illness(group, name);
+            dynButtons.appendChild(btn);
+        });
+        btnBack.onclick = show_illnesses;
+    }
+
+    function show_illness(group, illnessName) {
+        showDyn();
+        dynTitle.innerText = illnessName;
+        dynButtons.innerHTML = '';
+        dynButtons.className = '';
+        const items = illnessData[group][illnessName] || [];
+        let html = '<ul style="padding-left:20px; text-align:left;">';
+        items.forEach(text => { html += `<li>${text}</li>`; });
+        html += '</ul>';
+        dynContent.innerHTML = html;
+        btnBack.onclick = () => show_letter_group(group);
+    }
+
+    function renderProtocolsList(systemName) {
+        showDyn();
+        dynTitle.innerText = systemName;
+        dynContent.innerHTML = "Протоколы:";
+        dynButtons.innerHTML = '';
+        dynButtons.className = '';
+        const data = protocolsData[systemName] || protocolsData;
+        Object.keys(data).forEach(proto => {
+            const btn = document.createElement('button');
+            btn.className = 'button';
+            btn.innerText = proto;
+            btn.onclick = () => renderProtocolText(systemName, proto);
+            dynButtons.appendChild(btn);
+        });
+        btnBack.onclick = () => renderSystems();
+    }
+
+    function renderProtocolText(systemName, protoName) {
+        showDyn();
+        dynTitle.innerText = protoName;
+        dynButtons.innerHTML = ''; 
+        dynContent.style.whiteSpace = "pre-line";
+        dynContent.innerText = protocolsData[systemName][protoName];
+        btnBack.onclick = () => renderProtocolsList(systemName);
+    }
+</script>
+</body>
+</html>
