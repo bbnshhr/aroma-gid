@@ -114,8 +114,14 @@
 
         .letters-grid .button { margin: 0; padding: 15px 5px; }
 
-        @media (max-width: 1000px) {
-            body { flex-direction: column; align-items: center; }
+		@media (max-width: 1000px) {
+            body { 
+                flex-direction: column; 
+                align-items: center; 
+            }
+            body::before {
+                display: none;
+            }
             .video-sidebar {
                 position: relative;
                 right: auto;
@@ -124,10 +130,6 @@
                 width: 90%;
                 max-width: 450px;
                 margin-top: 20px;
-            }
-	    body::before {
-                width: 30%; /* Увеличили и для мобильных */
-                opacity: 0.8; /* На мобильных можно оставить легкую прозрачность, чтобы не перекрывала контент */
             }
         }
     </style>
